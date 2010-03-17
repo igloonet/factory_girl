@@ -368,6 +368,26 @@ describe Factory do
     end
   end
 
+  describe "a factory for namespaced class" do
+    before do
+      @name    = :settings
+      @class   = Admin::Settings
+    end
+    
+    after { Factory.factories.clear }
+
+    it "should build namespaced class passed by string" do
+      factory = Factory.define(@name.to_s, :class => @class.name) {}
+      factory.build_class.should == @class
+    end
+
+    it "should build Admin::Settings class from Admin::Settings string" do
+      factory = Factory.define(@name.to_s, :class => @class.name.underscore) {}
+      factory.build_class.should == @class
+    end
+
+  end
+
   describe "after defining a factory" do
     before do
       @name    = :user
