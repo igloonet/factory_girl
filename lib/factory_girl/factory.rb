@@ -82,11 +82,16 @@ class Factory
   
   def inherit_from(parent) #:nodoc:
     @options[:class] ||= parent.class_name
-    parent.attributes.each do |attribute|
-      unless attribute_defined?(attribute.name)
-        @attributes << attribute.clone
+    callbacks = parent.attributes.inject([]) do |callbacks, attribute|
+      if attribute.kind_of?(Attribute::Callback)
+        callbacks.push attribute
+      else
+        @attributes << attribute.clone unless attribute_defined?(attribute.name)
       end
+      callbacks
     end
+
+    @attributes = callbacks + @attributes
   end
 
   # Adds an attribute that should be assigned on generated instances for this
@@ -378,17 +383,17 @@ class Factory
   # Based on ActiveSupport's underscore inflector
   def class_name_to_variable_name(name)
     name.to_s.gsub(/::/, '/').
-      gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-      gsub(/([a-z\d])([A-Z])/,'\1_\2').
-      tr("-", "_").
-      downcase
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
   end
 
   # Based on ActiveSupport's camelize inflector
   def variable_name_to_class_name(name)
     name.to_s.
-      gsub(/\/(.?)/) { "::#{$1.upcase}" }.
-      gsub(/(?:^|_)(.)/) { $1.upcase }
+        gsub(/\/(.?)/) { "::#{$1.upcase}" }.
+        gsub(/(?:^|_)(.)/) { $1.upcase }
   end
 
   # From ActiveSupport

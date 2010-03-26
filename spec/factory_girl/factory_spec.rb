@@ -274,7 +274,7 @@ describe Factory do
         @factory.add_attribute(:test, 'original')
         Factory.alias(/(.*)_alias/, '\1')
         @result = @factory.run(Factory::Proxy::AttributesFor,
-                               :test_alias => 'new')
+          :test_alias => 'new')
       end
 
       it "should use the passed in value for the alias" do
@@ -472,7 +472,7 @@ describe Factory do
     end
 
     it "inherit all callbacks" do
-      Factory.define(:child, :parent => :object) do |f|
+      child = Factory.define(:child, :parent => :object) do |f|
         f.after_stub {|o| o.name = 'Stubby' }
       end
 
@@ -480,9 +480,25 @@ describe Factory do
         f.after_stub {|o| o.name = "#{o.name} McStubby" }
       end
 
+      child.attributes.size.should == 2
       grandchild.attributes.size.should == 3
       grandchild.attributes.first.should be_kind_of(Factory::Attribute::Callback)
       grandchild.attributes[1].should be_kind_of(Factory::Attribute::Callback)
+    end
+
+    it "inherit callbacks in correct order" do
+      child = Factory.define(:child, :parent => :object) do |f|
+        f.after_stub {|o| o.name = 'Stubby' }
+      end
+
+      grandchild = Factory.define(:grandchild, :parent => :child) do |f|
+        f.after_stub {|o| o.name = "#{o.name} McStubby" }
+      end
+
+      child_callback = child.attributes.find {|attr| attr.kind_of? Factory::Attribute::Callback }
+      grandchild_callback = grandchild.attributes.reverse.find {|attr| attr.kind_of? Factory::Attribute::Callback }
+      grandchild.attributes.should include(child_callback)
+      grandchild.attributes.index(child_callback).should < grandchild.attributes.index(grandchild_callback)
     end
   end
 
@@ -558,7 +574,7 @@ describe Factory do
 
     describe "with several factories files under #{dir}/factories" do
       in_directory_with_files File.join(dir, 'factories', 'post_factory.rb'),
-                              File.join(dir, 'factories', 'person_factory.rb')
+          File.join(dir, 'factories', 'person_factory.rb')
       it_should_behave_like "finds definitions"
       it { should require_definitions_from("#{dir}/factories/post_factory.rb") }
       it { should require_definitions_from("#{dir}/factories/person_factory.rb") }
@@ -566,8 +582,8 @@ describe Factory do
 
     describe "with nested and unnested factories files under #{dir}" do
       in_directory_with_files File.join(dir, 'factories.rb'),
-                              File.join(dir, 'factories', 'post_factory.rb'),
-                              File.join(dir, 'factories', 'person_factory.rb')
+          File.join(dir, 'factories', 'post_factory.rb'),
+          File.join(dir, 'factories', 'person_factory.rb')
       it_should_behave_like "finds definitions"
       it { should require_definitions_from("#{dir}/factories.rb") }
       it { should require_definitions_from("#{dir}/factories/post_factory.rb") }
