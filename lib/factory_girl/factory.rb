@@ -344,7 +344,7 @@ class Factory
 
   def class_for (class_or_to_s)
     if class_or_to_s.respond_to?(:to_sym)
-      Object.const_get(variable_name_to_class_name(class_or_to_s))
+      variable_name_to_class_name(class_or_to_s).constantize
     else
       class_or_to_s
     end
