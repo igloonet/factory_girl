@@ -85,7 +85,6 @@ class Factory
   def inherit_from(parent) #:nodoc:
     @options[:class]            ||= parent.class_name
     @options[:default_strategy] ||= parent.default_strategy
-    parent.attributes.each do |attribute|
     callbacks = parent.attributes.inject([]) do |callbacks, attribute|
       if attribute.kind_of?(Attribute::Callback)
         callbacks.push attribute
