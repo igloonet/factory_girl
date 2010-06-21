@@ -85,16 +85,18 @@ class Factory
   def inherit_from(parent) #:nodoc:
     @options[:class]            ||= parent.class_name
     @options[:default_strategy] ||= parent.default_strategy
+    parent_attributes = []
     callbacks = parent.attributes.inject([]) do |callbacks, attribute|
       if attribute.kind_of?(Attribute::Callback)
         callbacks.push attribute
       else
-        @attributes << attribute.clone unless attribute_defined?(attribute.name)
+      	parent_attributes << attribute.clone unless attribute_defined?(attribute.name)
+        #@attributes 
       end
       callbacks
     end
 
-    @attributes = callbacks + @attributes
+    @attributes = callbacks + parent_attributes + @attributes
   end
 
   # Adds an attribute that should be assigned on generated instances for this
