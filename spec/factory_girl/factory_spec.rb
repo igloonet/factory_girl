@@ -531,7 +531,7 @@ describe Factory do
       child.attributes.size.should == 2
       grandchild.attributes.size.should == 3
       grandchild.attributes.first.should be_kind_of(Factory::Attribute::Callback)
-      grandchild.attributes[1].should be_kind_of(Factory::Attribute::Callback)
+      grandchild.attributes[2].should be_kind_of(Factory::Attribute::Callback)
     end
 
     it "inherit callbacks in correct order" do
